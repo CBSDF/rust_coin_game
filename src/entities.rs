@@ -31,6 +31,14 @@ pub struct Bomb {
     pub damage: i32,
 }
 
+pub struct Aid {
+    pub x: f32,
+    pub y: f32,
+    pub radius: f32,
+    pub speed: f32,
+    pub heal: i32,
+}
+
 impl Coin {
     pub fn respawn(&mut self) {
         self.y = rand::gen_range(-200.0, 0.0);
@@ -48,7 +56,28 @@ impl Bomb {
     }
 }
 
+impl Aid {
+    pub fn respawn(&mut self) {
+        self.y = rand::gen_range(-300.0, 0.0);
+        self.x = rand::gen_range(self.radius, screen_width() - self.radius);
+        self.speed = rand::gen_range(3.0, 6.0);
+        self.heal = rand::gen_range(10, 30);
+    }
+}
+
 impl CircleCollider for Coin {
+    fn get_x(&self) -> f32 {
+        self.x
+    }
+    fn get_y(&self) -> f32 {
+        self.y
+    }
+    fn get_radius(&self) -> f32 {
+        self.radius
+    }
+}
+
+impl CircleCollider for Aid {
     fn get_x(&self) -> f32 {
         self.x
     }

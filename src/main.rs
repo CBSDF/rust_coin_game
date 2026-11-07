@@ -15,6 +15,7 @@ async fn main() {
     let coin_tex = Texture2D::from_file_with_format(include_bytes!("../assets/coin.png"), None);
     let bomb_tex = Texture2D::from_file_with_format(include_bytes!("../assets/bomb.png"), None);
     let bg_tex = Texture2D::from_file_with_format(include_bytes!("../assets/background.png"), None);
+    let aid_tex = Texture2D::from_file_with_format(include_bytes!("../assets/aid.png"), None);
 
     let mut player = Player {
         x: 200.0,
@@ -28,7 +29,7 @@ async fn main() {
 
     let mut coins: Vec<Coin> = Vec::new();
 
-    for _ in 0..7 {
+    for _ in 0..10 {
         coins.push(Coin {
             x: rand::gen_range(15.0, screen_width() - 15.0),
             y: rand::gen_range(-200.0, 0.0),
@@ -38,13 +39,25 @@ async fn main() {
     }
 
     let mut bombs: Vec<Bomb> = Vec::new();
-    for _ in 0..4 {
+    for _ in 0..5 {
         bombs.push(Bomb {
             x: rand::gen_range(15.0, screen_width() - 15.0),
             y: rand::gen_range(-300.0, 0.0),
             radius: 15.0,
             speed: rand::gen_range(3.0, 6.0),
             damage: rand::gen_range(20, 60),
+        });
+    }
+
+    let mut aids: Vec<Aid> = Vec::new();
+
+    for _ in 0..3 {
+        aids.push(Aid {
+            x: rand::gen_range(15.0, screen_width() - 15.0),
+            y: rand::gen_range(-300.0, 0.0),
+            radius: 15.0,
+            speed: rand::gen_range(2.0, 5.0),
+            heal: rand::gen_range(10, 30),
         });
     }
 
@@ -114,6 +127,24 @@ async fn main() {
                     draw_texture(&bomb_tex, bomb.x - bomb.radius, bomb.y - bomb.radius, WHITE);
                 }
             
+                for aid in &mut aids {
+                    aid.y += aid.speed;
+                
+                    if aid.y > screen_height() {
+                        aid.respawn();
+                    }
+                
+                    if check_collision(&player, aid) {
+                        player.hp += aid.heal;
+                        if player.hp > MAX_HP {
+                            player.hp = MAX_HP;
+                        }
+                        aid.respawn();
+                    }
+                
+                    draw_texture(&aid_tex, aid.x - aid.radius, aid.y - aid.radius, WHITE);
+                }
+
                 draw_texture(&player_tex, player.x, player.y, WHITE);
             
                 draw_text(&format!("Score: {}", score), 20.0, 40.0, 30.0, GOLD);
