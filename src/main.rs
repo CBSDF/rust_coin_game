@@ -8,7 +8,7 @@ use game::*;
 use entities::*;
 
 
-#[macroquad::main("2d game")]
+#[macroquad::main("Coin Catcher")]
 async fn main() {
 
     let player_tex = Texture2D::from_file_with_format(include_bytes!("../assets/player.png"), None);
