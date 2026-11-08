@@ -7,6 +7,13 @@ pub enum GameState {
     Menu,
     Play,
     GameOver,
+    Shop,
+}
+
+#[derive(PartialEq)]
+pub enum ShopTab {
+    Upgrades,
+    Skins,
 }
 
 pub fn handle_input(player: &mut Player) {

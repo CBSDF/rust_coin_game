@@ -3,7 +3,7 @@ mod game;
 mod entities;
 
 use macroquad::prelude::*;
-use ui::button;
+use ui::*;
 use game::*;
 use entities::*;
 
@@ -22,7 +22,7 @@ async fn main() {
         y: 400.0,
         hp: MAX_HP,
         size: 50.0,
-        speed: 5.0,
+        speed: 1.0,
     };
 
     let mut score = 0;
@@ -62,6 +62,9 @@ async fn main() {
     }
 
     let mut state = GameState::Menu;
+    let mut shop_tab = ShopTab::Upgrades;
+    let mut money: i32 = 0;
+    let mut speed_level: i32 = 1;
 
     loop {
         clear_background(BLUE);
@@ -84,7 +87,10 @@ async fn main() {
                     reset_game(&mut player, &mut score, &mut coins, &mut bombs);
                     state = GameState::Play;
                 }
-                if button("Exit", screen_width() / 2.0 - 100.0, 250.0, 200.0, 50.0) {
+                if button("Shop", screen_width() / 2.0 - 100.0, 250.0, 200.0, 50.0){
+                    state = GameState::Shop;
+                }
+                if button("Exit", screen_width() / 2.0 - 100.0, 300.0, 200.0, 50.0) {
                     break;
                 }
             }
@@ -92,6 +98,7 @@ async fn main() {
                 handle_input(&mut player);
 
                 if player.hp <= 0 {
+                    money += score; 
                     state = GameState::GameOver;
                 }
 
@@ -152,6 +159,37 @@ async fn main() {
                 draw_text(&format!("HP: {}", player.hp.max(0)), 20.0, 80.0, 30.0, RED);
 
 
+            }
+            GameState::Shop => {
+                draw_text(&format!("Coins: {}", money), 20.0, 40.0, 30.0, GOLD);
+
+                if tab_button("Upgrades", 100.0, 80.0, 180.0, 50.0, shop_tab == ShopTab::Upgrades) {
+                    shop_tab = ShopTab::Upgrades;
+                }
+
+                if tab_button("Skins", 290.0, 80.0, 180.0, 50.0, shop_tab == ShopTab::Skins) {
+                    shop_tab = ShopTab::Skins;
+                }
+
+                match shop_tab {
+                    ShopTab::Upgrades => {
+                        draw_text("Speed Upgrade", 100.0, 160.0, 30.0, WHITE);
+                        if button(&format!("Upgrade (Level {}) - {} Coins", speed_level, speed_level * 10), 100.0, 200.0, 300.0, 50.0) {
+                            if money >= speed_level * 10 {
+                                money -= speed_level * 10;
+                                speed_level += 1;
+                                player.speed += 0.5;
+                            }
+                        }
+                    }
+                    ShopTab::Skins => {
+                        draw_text("Skins coming soon!", 100.0, 160.0, 30.0, WHITE);
+                    }
+                }
+
+                if button("Back to Menu", 100.0, 300.0, 300.0, 50.0) {
+                    state = GameState::Menu;
+                }
             }
             GameState::GameOver => {
                     draw_text(
